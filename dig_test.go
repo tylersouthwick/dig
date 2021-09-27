@@ -139,6 +139,21 @@ func TestEndToEndSuccess(t *testing.T) {
 		}), "invoke failed")
 	})
 
+	t.Run("struct type constructor", func(t *testing.T) {
+		c := New()
+		type Foo struct {
+			S string
+		}
+		require.NoError(t, c.Provide(func() string {
+			return "foo"
+		}), "provide failed")
+		require.NoError(t, c.Provide(reflect.TypeOf(Foo{})), "provide failed")
+		require.NoError(t, c.Invoke(func(f *Foo) {
+			require.NotNil(t, f, "invoke got nil Foo")
+			require.True(t, f.S == "foo", "invoke got wrong string")
+		}), "invoke failed")
+	})
+
 	t.Run("param", func(t *testing.T) {
 		c := New()
 		type contents string

@@ -524,6 +524,9 @@ func (c *Container) invoker() invokerFn {
 // accepts constructors that specify dependencies as dig.In structs and/or
 // specify results as dig.Out structs.
 func (c *Container) Provide(constructor interface{}, opts ...ProvideOption) error {
+	if t, ok := constructor.(reflect.Type); ok {
+		return c.Provide(funcProvider(t), opts...)
+	}
 	ctype := reflect.TypeOf(constructor)
 	if ctype == nil {
 		return errors.New("can't provide an untyped nil")
