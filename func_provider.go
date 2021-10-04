@@ -13,6 +13,9 @@ func (handler funcProviderHandler) handle(args []reflect.Value) []reflect.Value 
 	t := reflect.New(handler.target)
 
 	for i := 0; i < t.Elem().Type().NumField(); i++ {
+		if t.Elem().Type().Field(i).Anonymous {
+			continue
+		}
 		field := t.Elem().Field(i)
 		found := false
 		for _, arg := range args {
@@ -44,7 +47,9 @@ func funcProvider(t reflect.Type) interface{} {
 	args := make([]reflect.Type, 0)
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
-		args = append(args, field.Type)
+		if !field.Anonymous {
+			args = append(args, field.Type)
+		}
 	}
 
 	fn := reflect.FuncOf(args, []reflect.Type{reflect.PtrTo(t), errorType()}, false)
